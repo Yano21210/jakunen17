@@ -62,8 +62,8 @@ int main(int argc, char **argv){
   while (ros::ok()) {
     switch(stage){
       case 0:
-         //logger用
-        log_msg.data = "kadai2 node start";
+        //logger用
+        log_msg.data = "kadai1 node start";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -81,8 +81,9 @@ int main(int argc, char **argv){
           stage++;
           log_flag=0;//logger用
         }
-      case 1: //後ろ
-        log_msg.data = "Case1_usiro";
+      case 1: //まっすぐ
+        //logger用
+        log_msg.data = "maenisusumuyo";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -91,85 +92,42 @@ int main(int argc, char **argv){
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
-        vel.angular.x = 0.0; 
+        vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
+        // if(cou>=40){
         if(f_kyori<0.55){
           printf("aaaaa=\n");
           vel.linear.x = gensoku;
         }
         if(f_kyori<0.42 && r_kyori>0.5){
           cou=0;
-          log_flag=0;
-          stage++;//強制終了
-        }
-        break; 
-      case 2://東向き
-        log_msg.data = "Case2_higasimuki";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        ang_dir.data=3;
-        pub_tgt_ang.publish(ang_dir);
-        if(cou>=40){
-          cou=0;
-          log_flag=0;
           stage++;
+          log_flag=0;//logger用
         }
-        break;
-      case 3: //東向き、前
-        log_msg.data = "Case3_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(b_kyori<0.50){
-          cou=0;
-          log_flag=0;
-          stage++;//強制終了
-        }
-        break;
-      case 4://3秒待ち
-        log_msg.data = "Case4_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
         pub_twist.publish(vel);
-        if(cou>=30){
+        break; 
+    case 2: //右
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = -1*sokudo;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+       if(r_kyori<0.65){
+          printf("aaaaa=\n");
+          vel.linear.y = -1*gensoku;
+        }
+       if(r_kyori<0.40 && r_kyori>0){
           cou=0;
-          log_flag=0;
-          stage++;
+          stage++;//強制終了
         }
+        //pub_twist.publish(vel);
         break;
-      case 5: //東向き、前
-        log_msg.data = "Case5_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 3: //まっすぐ
         cou++;
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
@@ -179,18 +137,17 @@ int main(int argc, char **argv){
         vel.angular.z = 0.0;
         //pub_twist.publish(vel);
         // if(cou>=40){
-        if(b_kyori<1.0){
+        if(f_kyori<0.7){
+          printf("aaaaa=\n");
+          vel.linear.x = gensoku;
+        }
+        if(f_kyori<0.62 && f_kyori>0){
           cou=0;
-          log_flag=0;
           stage++;//強制終了
         }
+        pub_twist.publish(vel);
         break;
-      case 6://3秒待ち
-        log_msg.data = "Case6_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 4://左向き
         cou++;
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -198,19 +155,104 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
+        ang_dir.data=2;
+        pub_tgt_ang.publish(ang_dir);
+        if(cou>=40){
           cou=0;
-          log_flag=0;
           stage++;
         }
         break;
-      case 7://北向き
-        log_msg.data = "Case7_kitamuku";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
+    case 5: //右合わせ
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        if(r_kyori>0.33){
+          printf("aaaaa=\n");
+          vel.linear.y = -0.5*gensoku;
         }
+        if(r_kyori<=0.34 && r_kyori>=0){
+          cou=0;
+          stage++;//強制終了
+        }
+        pub_twist.publish(vel);
+        break;
+    case 6://左向き.まっすぐ
+        cou++;
+        vel.linear.x = sokudo;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+       if(r_kyori>0.35){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
+        }
+        if(r_kyori<0.34){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
+        }
+       if(f_kyori<0.41){
+          cou=0;
+          stage++;//強制終了
+        }
+        break;
+    case 7://左向き、後ろ1
+        cou++;
+        vel.linear.x = -1*sokudo;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+        if(r_kyori>0.38){
+          printf("aaaaa=\n");
+          vel.linear.y = -1*gensoku;
+        }
+        if(r_kyori<0.37){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
+        }
+        if(f_kyori<0.6){
+          printf("aaaaa=\n");
+          vel.linear.x = -1*gensoku;
+        }
+       if(l_kyori>0.5&&f_kyori>0.6){
+          cou=0;
+          stage++;//強制終了
+        }
+        break;
+     case 8://左向き、後ろ2
+        cou++;
+        vel.linear.x = -1*sokudo;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+       if(l_kyori<0.85){
+          printf("aaaaa=\n");
+          vel.linear.x = -1*gensoku;
+        }
+        if(b_kyori<0.43){
+          printf("aaaaa=\n");
+          vel.linear.x = -1*gensoku;
+        }
+        if(r_kyori>0.4){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
+        }
+       if(b_kyori<0.43){
+          cou=0;
+          stage++;//強制終了
+        }
+        break;
+    case 9://正面向き
         cou++;
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -222,93 +264,34 @@ int main(int argc, char **argv){
         pub_tgt_ang.publish(ang_dir);
         if(cou>=40){
           cou=0;
-          log_flag=0;
           stage++;
         }
         break;
-      case 8: //北向き、前
-        log_msg.data = "Case8_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 10: //正面向き、バック
         cou++;
-        vel.linear.x = sokudo;
+        vel.linear.x = -1*sokudo;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.6){
-          cou=0;
-          log_flag=0;
-          stage++;//強制終了
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+        if(b_kyori<0.6){
+          printf("aaaaa=\n");
+          vel.linear.x = -1*gensoku;
         }
-        break;
-      case 9://3秒待ち
-        log_msg.data = "Case9_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
+        if(l_kyori>0.4&&l_kyori<0.65){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
         }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 10: //北向き、前
-        log_msg.data = "Case10_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.5){
+        if(b_kyori<0.38 && b_kyori>0){
           cou=0;
           stage++;//強制終了
         }
-        break;
-      case 11://3秒待ち
-        log_msg.data = "Case11_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
         pub_twist.publish(vel);
-        if(cou>=30){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
         break;
-      case 12://西向き
-        log_msg.data = "Case12_nisimuki";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 11://右向き
         cou++;
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -316,20 +299,14 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        ang_dir.data=1;
+        ang_dir.data=3;
         pub_tgt_ang.publish(ang_dir);
         if(cou>=40){
           cou=0;
-          log_flag=0;
           stage++;
         }
         break;
-      case 13: //西向き、前
-        log_msg.data = "Case13_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+   case 12: //前向き、右
         cou++;
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
@@ -337,38 +314,45 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.8){
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+        if(r_kyori>0.34){
+          printf("aaaaa=\n");
+          vel.linear.y = -0.1*gensoku;
+        }
+        if(l_kyori>0.34){
+          printf("aaaaa=\n");
+          vel.linear.y = 0.1*gensoku;
+        }
+        if(f_kyori<0.40){
           cou=0;
-          log_flag=0;
           stage++;//強制終了
         }
         break;
-      case 14://3秒待ち
-        log_msg.data = "Case14_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 13://右向き、後ろ
         cou++;
-        vel.linear.x = 0.0;
+        vel.linear.x = -1*sokudo;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
+        //pub_twist.publish(vel);
+        // if(cou>=40){
+        if(r_kyori>0.38){
+          printf("aaaaa=\n");
+          vel.linear.y = -0.1*gensoku;
+         }
+        if(r_kyori<0.37){
+          printf("aaaaa=\n");
+          vel.linear.y = gensoku;
+         }
+       if(b_kyori<0.38 && b_kyori>0){
           cou=0;
-          log_flag=0;
-          stage++;
+          stage++;//強制終了
         }
         break;
-      case 15://南向き
-        log_msg.data = "Case15_minamimuku";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+    case 14://右向き
         cou++;
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -376,40 +360,14 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        ang_dir.data=1;
+        ang_dir.data=0;
         pub_tgt_ang.publish(ang_dir);
         if(cou>=40){
           cou=0;
-          log_flag=0;
-          stage++;
+          stage=99;
         }
         break;
-      case 16: //西向き、前
-        log_msg.data = "Case16_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.8){
-          cou=0;
-          log_flag=0;
-          stage++;//強制終了
-        }
-        break;
-      case 17://3秒待ち
-        log_msg.data = "Case17_matu";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
+    case 99:
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
@@ -417,44 +375,12 @@ int main(int argc, char **argv){
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
         pub_twist.publish(vel);
-        if(cou>=30){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 18://end
-        log_msg.data = "Case18_end";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(robot_mode==0){
-          log_flag=0;
-          stage=0;
-        }
-        break;
-      case 99://非常停止
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(robot_mode==0)stage=0;
+        //if(robot_mode==0)stage=0;
         break;
     }
     pub_twist.publish(vel);
-    if(robot_mode==0)stage=0;
-    if(robot_mode==4)stage=99;
+    //if(robot_mode==0)stage=0;
+    //if(robot_mode==2)stage=99;
     printf("state=%d\n",stage);
     printf("F_kyori:%f\n",f_kyori);
     printf("B_kyori:%f\n",b_kyori);
