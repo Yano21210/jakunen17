@@ -9,13 +9,16 @@ using namespace std;
 int robot_mode=0;
 int stage = 0;
 int cou=0;
+int stage_time_flag = 0;
 std_msgs::Int8 ang_dir;
 
 float f_kyori = -1;
+float work_kyori = -1;
+float f_kyori2 = -1;
 float b_kyori = -1;
 float r_kyori = -1;
 float l_kyori = -1;
-float sokudo = 0.1;
+float sokudo = 0.15;
 float gensoku= 0.07;
 
 int log_flag=0;//logger用
@@ -23,6 +26,10 @@ int log_flag=0;//logger用
 void callback_range_front(const std_msgs::Float32& msg) {
     //ROS_INFO("/range_front\t:\t%f\n\n", msg.data);
     f_kyori =  msg.data;
+}
+void callback_range_front2(const std_msgs::Float32& msg) {
+    //ROS_INFO("/range_front\t:\t%f\n\n", msg.data);
+    work_kyori =  msg.data;
 }
 void callback_range_back(const std_msgs::Float32& msg) {
     //ROS_INFO("/range_back\t:\t%f\n\n", msg.data);
@@ -49,21 +56,23 @@ int main(int argc, char **argv){
   ros::Publisher pub_twist= nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
   ros::Publisher pub_hand_task = nh.advertise<std_msgs::Int8>("/hand_tast", 10);
   ros::Publisher pub_tgt_ang = nh.advertise<std_msgs::Int8>("/tgt_ang", 10);
+  ros::Publisher pub_hand_num = nh.advertise<std_msgs::Int8>("/hand_num", 10);
   ros::Publisher pub_logger = nh.advertise<std_msgs::String>("/logger", 10);//logger用
   std_msgs::String log_msg;//logger用
   ros::Rate rate(10);
   geometry_msgs::Twist vel;
   std_msgs::Int8 fin;
+  std_msgs::Int8 num;
   ros::Subscriber sub_robot_state = nh.subscribe("/robot_state", 100, callback_robot_state);
   ros::Subscriber sub_range_front = nh.subscribe("/range_ahead", 100, callback_range_front);
+  ros::Subscriber sub_range_front2 = nh.subscribe("/range_front", 100, callback_range_front2);
   ros::Subscriber sub_range_back = nh.subscribe("/range_back", 100, callback_range_back);
   ros::Subscriber sub_range_right = nh.subscribe("/range_right", 100, callback_range_right);
   ros::Subscriber sub_range_left = nh.subscribe("/range_left", 100, callback_range_left);
   while (ros::ok()) {
     switch(stage){
       case 0:
-         //logger用
-        log_msg.data = "kadai2 node start";
+        log_msg.data = "kadai1 node start";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -74,13 +83,15 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        pub_twist.publish(vel);
         fin.data=0;
+        num.data = 0;
+        pub_hand_num.publish(num);
         pub_hand_task.publish(fin);
-        if(robot_mode==1 || 1){
+        if(robot_mode==1){
           stage++;
           log_flag=0;//logger用
         }
+        break;
       case 1: //後ろ
         log_msg.data = "Case1_usiro";
         if(log_flag<4){
@@ -88,23 +99,313 @@ int main(int argc, char **argv){
           log_flag++;
         }
         cou++;
-        vel.linear.x = sokudo;
+        vel.linear.x = -1*sokudo;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0; 
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.55){
-          printf("aaaaa=\n");
-          vel.linear.x = gensoku;
+        if(b_kyori<0.55){
+          vel.linear.x = -1*gensoku;
         }
-        if(f_kyori<0.42 && r_kyori>0.5){
+        if(b_kyori<0.32){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break; 
-      case 2://東向き
+      case 2: //右
+        log_msg.data = "Case1_usiro";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = -1*gensoku;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0; 
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(b_kyori<0.26){
+          vel.linear.x = gensoku;
+        }
+        if(l_kyori>0.90){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 3://前
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(b_kyori>0.8){
+          cou=0;
+          log_flag=0;
+          stage=18;//強制終了
+        }
+        break;
+      // case 4://左あわせ
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(l_kyori>0.285){
+      //     printf("aaaaa=\n");
+      //     vel.linear.y = 0.2*gensoku;
+      //   }
+      //   if(l_kyori<0.28){
+      //     printf("aaaaa=\n");
+      //     vel.linear.y = -0.2*gensoku;
+      //   }
+      //   if(l_kyori>0.28&&l_kyori<0.285){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      // case 5://前
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(work_kyori<0.20){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      // case 6://前
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(cou>=15){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      // case 7://num_6送るよ
+      //   num.data = 6;
+      //   pub_hand_num.publish(num);
+      //   log_msg.data = "Case7_numokuru";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   if(cou>=5){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;//logger用
+      //   }
+      //   break;
+      // case 8://tast_1送るよ持ち上げ
+      //   fin.data = 1;
+      //   pub_hand_task.publish(fin);
+      //   log_msg.data = "Case8_tastokuru";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   if(cou>=230){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;
+      //   }
+      //   break;
+      // case 9://tast_0送るよ
+      //   fin.data=0;
+      //   pub_hand_task.publish(fin);
+      //   log_msg.data = "Case10_num0";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   if(cou>=5){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;//logger用
+      //   }
+      //   break;
+      // case 10://前
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(work_kyori<0.21){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      // case 11://前
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 1.2*gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(cou>=30){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      // case 12://num_5送るよ
+      //   num.data = 5;
+      //   pub_hand_num.publish(num);
+      //   log_msg.data = "Case7_numokuru";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   if(cou>=5){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;//logger用
+      //   }
+      //   break;
+      // case 13://tast_1送るよ持ち上げ
+      //   fin.data = 1;
+      //   pub_hand_task.publish(fin);
+      //   log_msg.data = "Case8_tastokuru";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   if(cou>=230){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;
+      //   }
+      //   break;
+      // case 14://tast_0送るよ
+      //   fin.data=0;
+      //   pub_hand_task.publish(fin);
+      //   log_msg.data = "Case10_num0";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   if(cou>=5){
+      //     cou=0;
+      //     stage++;
+      //     log_flag=0;//logger用
+      //   }
+      //   break;
+      // case 15://左あわせ
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = 0.0;
+      //   vel.linear.y = -1*gensoku;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(cou>=10){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      // case 16://後ろ
+      //   log_msg.data = "Case2_higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = -1*gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0; higasimuki";
+      //   if(log_flag<4){
+      //     pub_logger.publish(log_msg);
+      //     log_flag++;
+      //   }
+      //   cou++;
+      //   vel.linear.x = -0.5*gensoku;
+      //   vel.linear.y = 0.0;
+      //   vel.linear.z = 0.0;
+      //   vel.angular.x = 0.0;
+      //   vel.angular.y = 0.0;
+      //   vel.angular.z = 0.0;
+      //   if(b_kyori<0.95 && work_kyori>0.87){
+      //     cou=0;
+      //     log_flag=0;
+      //     stage++;//強制終了
+      //   }
+      //   break;
+      case 18://左
         log_msg.data = "Case2_higasimuki";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -112,25 +413,112 @@ int main(int argc, char **argv){
         }
         cou++;
         vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
+        vel.linear.y = -0.8*gensoku;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        ang_dir.data=3;
-        pub_tgt_ang.publish(ang_dir);
-        if(cou>=40){
+        if(l_kyori<0.685){
+          vel.linear.y = -0.4*gensoku;
+        }
+        if(l_kyori>0.675){
+          vel.linear.y = 0.4*gensoku;
+        }
+        if((l_kyori>0.670)&&(l_kyori<0.685)&&(work_kyori<0.60)){
           cou=0;
           log_flag=0;
-          stage++;
+          stage++;//強制終了
         }
         break;
-      case 3: //東向き、前
-        log_msg.data = "Case3_mae";
+      case 19://前
+        log_msg.data = "Case2_higasimuki";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
+        cou++;
+        vel.linear.x = gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        if(work_kyori<0.19){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 20://num_4送るよ
+        num.data = 6;
+        pub_hand_num.publish(num);
+        log_msg.data = "Case7_numokuru";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        if(cou>=5){
+          cou=0;
+          stage++;
+          log_flag=0;//logger用
+        }
+        break;
+      case 21://tast_1送るよ持ち上げ
+        fin.data = 8;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case8_tastokuru";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        if(cou>=170){
+          cou=0;
+          stage++;
+          log_flag=0;
+        }
+        break;
+      case 22://tast_0送るよ
+        fin.data=0;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case10_num0";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        if(cou>=5){
+          cou=0;
+          stage++;
+          log_flag=0;//logger用
+        }
+        break;
+      case 23://前
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        pub_twist.publish(vel);
+        if(work_kyori<0.19){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 24://前
         cou++;
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
@@ -138,14 +526,15 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(b_kyori<0.50){
+        if(f_kyori<0.32 && work_kyori<0.19){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
-        break;
-      case 4://3秒待ち
-        log_msg.data = "Case4_mati";
+      case 25://num_3送るよ
+        num.data = 5;
+        pub_hand_num.publish(num);
+        log_msg.data = "Case7_numokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -154,22 +543,125 @@ int main(int argc, char **argv){
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
+        if(cou>=5){
           cou=0;
-          log_flag=0;
           stage++;
+          log_flag=0;//logger用
         }
         break;
-      case 5: //東向き、前
-        log_msg.data = "Case5_mae";
+      case 26://tast_1送るよ持ち上げ
+        fin.data = 8;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case8_tastokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
+        cou++;
+        if(cou>=170){
+          cou=0;
+          stage++;
+          log_flag=0;
+        }
+        break;
+      case 27://tast_0送るよ
+        fin.data=0;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case10_num0";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        if(cou>=5){
+          cou=0;
+          stage++;
+          log_flag=0;//logger用
+        }
+        break;
+     case 28://後ろ
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = -1*gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(work_kyori>0.7){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 29://後ろ
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = -0.5*gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(f_kyori>0.60){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+     case 30://左
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = -0.5*gensoku;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(l_kyori>0.60){
+          vel.linear.y = -0.5*gensoku;
+        }
+        if(work_kyori<0.5 || r_kyori<0.1){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 31://前
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 1.5*gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        if(work_kyori<0.19){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+        break;
+      case 32://前
         cou++;
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
@@ -177,61 +669,81 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        //pub_twist.publish(vel);
-        // if(cou>=40){
-        if(b_kyori<1.0){
+        if(f_kyori<0.38 && work_kyori<0.19){
+          cou=0;
+          log_flag=0;
+          stage++;//強制終了
+        }
+      case 33://num_2送るよ
+        num.data =4;
+        pub_hand_num.publish(num);
+        log_msg.data = "Case7_numokuru";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        if(cou>=5){
+          cou=0;
+          stage++;
+          log_flag=0;//logger用
+        }
+        break;
+      case 34://tast_1送るよ持ち上げ
+        fin.data = 8;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case8_tastokuru";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        if(cou>=170){
+          cou=0;
+          stage++;
+          log_flag=0;
+        }
+        break;
+      case 35://tast_0送るよ
+        fin.data=0;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case10_num0";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        if(cou>=5){
+          cou=0;
+          stage++;
+          log_flag=0;//logger用
+        }
+        break;
+      case 36://前
+        log_msg.data = "Case2_higasimuki";
+        if(log_flag<4){
+          pub_logger.publish(log_msg);
+          log_flag++;
+        }
+        cou++;
+        vel.linear.x = gensoku;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        if(work_kyori<0.19){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break;
-      case 6://3秒待ち
-        log_msg.data = "Case6_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 7://北向き
-        log_msg.data = "Case7_kitamuku";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        ang_dir.data=0;
-        pub_tgt_ang.publish(ang_dir);
-        if(cou>=40){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 8: //北向き、前
-        log_msg.data = "Case8_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+      case 37://前
         cou++;
         vel.linear.x = sokudo;
         vel.linear.y = 0.0;
@@ -239,14 +751,15 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.6){
+        if(f_kyori<0.38){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
-        break;
-      case 9://3秒待ち
-        log_msg.data = "Case9_mati";
+      case 38://num_1送るよ
+        num.data = 3;
+        pub_hand_num.publish(num);
+        log_msg.data = "Case7_numokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -255,36 +768,31 @@ int main(int argc, char **argv){
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
+        if(cou>=5){
           cou=0;
-          log_flag=0;
           stage++;
+          log_flag=0;//logger用
         }
         break;
-      case 10: //北向き、前
-        log_msg.data = "Case10_mae";
+      case 39://tast_1送るよ持ち上げ
+        fin.data = 8;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case8_tastokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
         cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.5){
+        if(cou>=170){
           cou=0;
-          stage++;//強制終了
+          stage++;
+          log_flag=0;
         }
         break;
-      case 11://3秒待ち
-        log_msg.data = "Case11_mati";
+      case 40://tast_0送るよ
+        fin.data=0;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case10_num0";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
@@ -293,22 +801,32 @@ int main(int argc, char **argv){
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
+        if(cou>=5){
           cou=0;
-          log_flag=0;
           stage++;
+          log_flag=0;//logger用
         }
         break;
-      case 12://西向き
-        log_msg.data = "Case12_nisimuki";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
+      case 41://前
+          log_msg.data = "Case2_higasimuki";
+          if(log_flag<4){
+           pub_logger.publish(log_msg);
+           log_flag++;
+         }
+         cou++;
+         vel.linear.x = gensoku;
+         vel.linear.y = 0.0;
+         vel.linear.z = 0.0;
+         vel.angular.x = 0.0;
+         vel.angular.y = 0.0;
+         vel.angular.z = 0.0;
+         if(work_kyori<0.6){
+           cou=0;
+           log_flag=0;
+           stage++;//強制終了
+         }
+         break;
+      case 42://南向く
         cou++;
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -318,112 +836,63 @@ int main(int argc, char **argv){
         vel.angular.z = 0.0;
         ang_dir.data=1;
         pub_tgt_ang.publish(ang_dir);
-        if(cou>=40){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 13: //西向き、前
-        log_msg.data = "Case13_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.8){
-          cou=0;
-          log_flag=0;
-          stage++;//強制終了
-        }
-        break;
-      case 14://3秒待ち
-        log_msg.data = "Case14_mati";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
         if(cou>=30){
           cou=0;
-          log_flag=0;
           stage++;
         }
         break;
-      case 15://南向き
-        log_msg.data = "Case15_minamimuku";
+        case 43://右
+          log_msg.data = "Case2_higasimuki";
+          if(log_flag<4){
+           pub_logger.publish(log_msg);
+           log_flag++;
+         }
+         cou++;
+         vel.linear.x = 0.0;
+         vel.linear.y = -1*gensoku;
+         vel.linear.z = 0.0;
+         vel.angular.x = 0.0;
+         vel.angular.y = 0.0;
+         vel.angular.z = 0.0;
+         if(b_kyori<0.26){
+          vel.linear.x = 0.5*gensoku;
+        }
+         if(b_kyori>0.31){
+          vel.linear.x = -0.3*gensoku;
+        }
+        if(r_kyori>0.28){
+          vel.linear.y = -0.3*gensoku;
+        }
+         if((r_kyori>0.80)&&(work_kyori<0.65)&&(l_kyori>0.6)){
+           cou=0;
+           log_flag=0;
+           stage++;//強制終了
+         }
+         break;
+      case 44://tast_1送るよ持ち上げ
+        fin.data = 4;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case8_tastokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
         cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        ang_dir.data=1;
-        pub_tgt_ang.publish(ang_dir);
-        if(cou>=40){
+        if(cou>=170){
           cou=0;
-          log_flag=0;
           stage++;
+          log_flag=0;
         }
         break;
-      case 16: //西向き、前
-        log_msg.data = "Case16_mae";
+      case 45://tast_0送るよ
+        fin.data=0;
+        pub_hand_task.publish(fin);
+        log_msg.data = "Case10_num0";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
-        cou++;
-        vel.linear.x = sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.8){
-          cou=0;
-          log_flag=0;
-          stage++;//強制終了
-        }
-        break;
-      case 17://3秒待ち
-        log_msg.data = "Case17_matu";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        pub_twist.publish(vel);
-        if(cou>=30){
-          cou=0;
-          log_flag=0;
-          stage++;
-        }
-        break;
-      case 18://end
+      case 46://end
         log_msg.data = "Case18_end";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -451,6 +920,11 @@ int main(int argc, char **argv){
         pub_twist.publish(vel);
         if(robot_mode==0)stage=0;
         break;
+    }
+
+    if(robot_mode==4){
+      stage=99;
+      log_flag=0;
     }
     pub_twist.publish(vel);
     if(robot_mode==0)stage=0;

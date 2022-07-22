@@ -97,7 +97,7 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.53){
+        if(f_kyori<0.50){
           vel.linear.x = gensoku;
         }
         if(f_kyori<0.40 && r_kyori>0.6){
@@ -199,55 +199,43 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-       if(r_kyori<0.29){
+       if(r_kyori<0.30){
           vel.linear.y = 0.5*gensoku;
         }
-        if(r_kyori>0.32){
+        if(r_kyori>0.33){
           vel.linear.y = -0.5*gensoku;
         }
-        if(f_kyori<0.55){
-          vel.linear.x = gensoku;
+        if(f_kyori<0.60){
+          vel.linear.x = 0.7*gensoku;
         }
-       if(f_kyori<0.50 && l_kyori<0.48){
+       if(f_kyori<0.51 && l_kyori<0.48){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break;
-    case 7://num_3送るよ
-        num.data = 3;
-        pub_hand_num.publish(num);
-        log_msg.data = "Case7_numokuru";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        if(cou>=5){
-          cou=0;
-          stage++;
-          log_flag=0;//logger用
-        }
-        break;
-    case 8://tast_1送るよ持ち上げ
-        fin.data = 1;
+    case 7://tast_4送るよ持ち上げ
+        fin.data = 4;
         pub_hand_task.publish(fin);
         log_msg.data = "Case8_tastokuru";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
         cou++;
-        if(cou>=150){
+        if(cou>=400){
           cou=0;
           stage++;
           log_flag=0;
         }
         break;
-    case 9://tast_0送るよ
+    case 8://tast_0送るよ
         fin.data=0;
         pub_hand_task.publish(fin);
         log_msg.data = "Case10_num0";
@@ -265,160 +253,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 10: //前
-        log_msg.data = "Case11_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.4*sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(cou>10){
-          cou=0;
-          stage++;
-          log_flag=0;
-        }
-        break;
-    case 11://num_2送るよ
-        num.data = 2;
-        pub_hand_num.publish(num);
-        log_msg.data = "Case12_num2";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        if(cou>=10){
-          cou=0;
-          stage++;
-          log_flag=0;//logger用
-        }
-        break;
-    case 12://tast_1送るよ持ち上げ
-        fin.data = 1;
-        pub_hand_task.publish(fin);
-        log_msg.data = "Case13_tast1";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        if(cou>=150){
-          cou=0;
-          stage++;
-          log_flag=0;
-        }
-        break;
-    case 13://tast_0送るよ
-        fin.data=0;
-        pub_hand_task.publish(fin);
-        log_msg.data = "Case15_num0";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        if(cou>=5){
-          cou=0;
-          stage++;
-          log_flag=0;//logger用
-        }
-        break;
-    case 14: //まっすぐ
-        log_msg.data = "Case16_mae";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.2*sokudo;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = 0.0;
-        if(f_kyori<0.32){
-          cou=0;
-          stage++;
-          log_flag=0;
-        }
-        break;
-    case 15://num_1送るよ
-        num.data = 1;
-        pub_hand_num.publish(num);
-        log_msg.data = "Case17_num3";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        if(cou>=10){
-          cou=0;
-          stage++;
-          log_flag=0;//logger用
-        }
-        break;
-    case 16://tast_1持ち上げ
-        fin.data = 1;
-        pub_hand_task.publish(fin);
-        log_msg.data = "Case18_tast1";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        if(cou>=150){
-          cou=0;
-          stage++;
-          log_flag=0;
-        }
-        break;
-    //  case 19://1.5秒待つ
-    //     log_msg.data = "Case19_3matu";
-    //     if(log_flag<4){
-    //       pub_logger.publish(log_msg);
-    //       log_flag++;
-    //     }
-    //     cou++;
-    //     if(cou>=15){
-    //       cou=0;
-    //       stage++;
-    //       log_flag=0;
-    //     }
-    //     break;
-    case 17://tast_0送るよ
-        fin.data=0;
-        pub_hand_task.publish(fin);
-        log_msg.data = "Case20_num0";
-        if(log_flag<4){
-          pub_logger.publish(log_msg);
-          log_flag++;
-        }
-        cou++;
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.linear.z = 0.0;
-        if(cou>=5){
-          cou=0;
-          stage++;
-          log_flag=0;//logger用
-        }
-        break;
-    case 18://左向き、後ろ1
+    case 9://左向き、後ろ1
         log_msg.data = "Case21_usiro1";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -426,18 +261,20 @@ int main(int argc, char **argv){
         }
         cou++;
         vel.linear.x = -1*sokudo;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
         vel.angular.y = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(f_kyori<0.6){
+        if(f_kyori>0.6){
           printf("aaaaa=\n");
-          vel.linear.x = -1.6*gensoku;
+          vel.linear.x = -1.8*gensoku;
         }
-       if(r_kyori<0.29){
+       if(r_kyori<0.30){
           printf("aaaaa=\n");
           vel.linear.y = 0.5*gensoku;
         }
-      if(r_kyori>0.33){
+      if(r_kyori>0.34){
           printf("aaaaa=\n");
           vel.linear.y = -0.5*gensoku;
         }
@@ -447,7 +284,7 @@ int main(int argc, char **argv){
           stage++;//強制終了
         }
         break;
-     case 19://左向き、後ろ2
+     case 10://左向き、後ろ2
         log_msg.data = "Case22_usiro2";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -468,17 +305,17 @@ int main(int argc, char **argv){
           printf("aaaaa=\n");
           vel.linear.y = 0.5*gensoku;
         }
-       if(r_kyori>0.32){
+       if(r_kyori>0.33){
           printf("aaaaa=\n");
-          vel.linear.y = -0.8*gensoku;
+          vel.linear.y = -0.5*gensoku;
         }
-       if(b_kyori<0.41){
+       if(b_kyori<0.47 && f_kyori>0.7){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break;
-    case 20://正面向き
+    case 11://正面向き
         log_msg.data = "Case23_maemuku";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -499,7 +336,7 @@ int main(int argc, char **argv){
           stage++;
         }
         break;
-    case 21: //正面向き、バック
+    case 12: //正面向き、バック
         log_msg.data = "Case24_back";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -524,13 +361,13 @@ int main(int argc, char **argv){
           printf("aaaaa=\n");
           vel.linear.y = gensoku;
         }
-        if(b_kyori<0.37){
+        if(b_kyori<0.38){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break;
-    case 22://東向く
+    case 13://東向く
         log_msg.data = "Case23_higasimuku";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -551,7 +388,7 @@ int main(int argc, char **argv){
           stage++;
         }
         break;
-   case 23: //前
+   case 14: //前
         log_msg.data = "Case24_mae";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -564,22 +401,19 @@ int main(int argc, char **argv){
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(r_kyori>0.33){
+        if(r_kyori>0.34){
           vel.linear.y = -1*gensoku;
         }
-        if(r_kyori<0.30){
+        if(r_kyori<0.29){
           vel.linear.y = gensoku;
         }
-        if(f_kyori<0.55){
-          vel.linear.y = 0.4*gensoku;
-        }
-        if(l_kyori<0.80 && f_kyori<0.44){
+        if(l_kyori<0.80 && f_kyori<0.77){
           cou=0;
           stage++;
           log_flag=0;//logger用
         }
         break;
-    case 24://1.5秒待つ
+    case 15://1.5秒待つ
        log_msg.data = "Case24_mae";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -599,7 +433,7 @@ int main(int argc, char **argv){
           log_flag=0;
         }
         break;
-    case 25://tast_0送るよ
+    case 16://tast_0送るよ
         fin.data=0;
         pub_hand_task.publish(fin);
         log_msg.data = "Case20_num0";
@@ -617,7 +451,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 26://num_1送るよ
+    case 17://num_1送るよ
         num.data = 1;
         pub_hand_num.publish(num);
         log_msg.data = "Case29_num2";
@@ -635,7 +469,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 27://tast_2送るよ下ろす
+    case 18://tast_2送るよ下ろす
         fin.data = 2;
         pub_hand_task.publish(fin);
         log_msg.data = "Case26_tast2";
@@ -644,26 +478,16 @@ int main(int argc, char **argv){
           log_flag++;
         }
         cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
         if(cou>=140){
           cou=0;
           stage++;
           log_flag=0;
         }
         break;
-    // case 30://1.5秒待つ
-    //     log_msg.data = "Case27_3matu";
-    //     if(log_flag<4){
-    //       pub_logger.publish(log_msg);
-    //       log_flag++;
-    //     }
-    //     cou++;
-    //     if(cou>=15){
-    //       cou=0;
-    //       stage++;
-    //       log_flag=0;
-    //     }
-    //     break;
-    case 28://num_2送るよ
+    case 19://num_2送るよ
         num.data = 2;
         pub_hand_num.publish(num);
         log_msg.data = "Case29_num2";
@@ -672,13 +496,16 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         cou++;
+        vel.linear.x = 0.0;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
         if(cou>=5){
           cou=0;
           stage++;
           log_flag=0;
         }
         break;
-    case 29://tast_0送るよ
+    case 20://tast_0送るよ
         fin.data=0;
         pub_hand_task.publish(fin);
         log_msg.data = "Case20_num0";
@@ -696,7 +523,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 30://tast_2送るよ
+    case 21://tast_2送るよ
         fin.data = 2;
         pub_hand_task.publish(fin);
         log_msg.data = "Case30_tast2";
@@ -711,7 +538,7 @@ int main(int argc, char **argv){
           log_flag=0;
         }
         break;
-    case 31://num_3送るよ
+    case 22://num_3送るよ
         num.data = 3;
         pub_hand_num.publish(num);
         log_msg.data = "Case33_num3";
@@ -729,7 +556,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 32://tast_0送るよ
+    case 23://tast_0送るよ
         fin.data=0;
         pub_hand_task.publish(fin);
         log_msg.data = "Case20_num0";
@@ -747,7 +574,7 @@ int main(int argc, char **argv){
           log_flag=0;//logger用
         }
         break;
-    case 33://tast_2送るよ下ろす
+    case 24://tast_2送るよ下ろす
         fin.data = 2;
         pub_hand_task.publish(fin);
         log_msg.data = "Case34_tast2";
@@ -756,56 +583,43 @@ int main(int argc, char **argv){
           log_flag++;
         }
         cou++;
-        if(cou>=170){
+        if(cou>=140){
           cou=0;
           stage++;
           log_flag=0;
         }
         break;
-    //  case 33://1.5秒待つ
-    //     log_msg.data = "Case35_3matu";
-    //     if(log_flag<4){
-    //       pub_logger.publish(log_msg);
-    //       log_flag++;
-    //     }
-    //     cou++;
-    //     if(cou>=15){
-    //       cou=0;
-    //       stage++;
-    //       log_flag=0;
-    //     }
-    //     break;
-    case 34://北向き、後ろ
+    case 25://北向き、後ろ
         log_msg.data = "Case37_usiro";
         if(log_flag<4){
           pub_logger.publish(log_msg);
           log_flag++;
         }
         cou++;
-        vel.linear.x = -1*sokudo;
+        vel.linear.x = -1.4*sokudo;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        if(r_kyori<0.30){
+        if(r_kyori<0.29){
           printf("aaaaa=\n");
           vel.linear.y = 0.5*gensoku;
          }
-         if(r_kyori>0.33){
+         if(r_kyori>0.35){
           printf("aaaaa=\n");
           vel.linear.y = -0.5*gensoku;
          }
-        if(b_kyori<0.45){
+        if(b_kyori<0.47){
           vel.linear.x = -1*gensoku;
         }
-       if(b_kyori<0.38){
+       if(b_kyori<0.39){
           cou=0;
           log_flag=0;
           stage++;//強制終了
         }
         break;
-    case 35://北向き
+    case 26://北向き
         log_msg.data = "Case38_Kitamuki";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -826,7 +640,7 @@ int main(int argc, char **argv){
           stage++;
         }
         break;
-    case 36: //北向き合わせ
+    case 27: //北向き合わせ
         log_msg.data = "Case5_migiitiawase";
         if(log_flag<4){
           pub_logger.publish(log_msg);
@@ -834,11 +648,11 @@ int main(int argc, char **argv){
         }
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
-        if(l_kyori>0.31){
+        if(l_kyori>0.38){
           printf("aaaaa=\n");
           vel.linear.y = gensoku;
         }
-        if(b_kyori>0.33){
+        if(b_kyori>0.38){
           printf("aaaaa=\n");
           vel.linear.x = -1*gensoku;
         }
@@ -848,7 +662,7 @@ int main(int argc, char **argv){
           stage++;//強制終了
         }
         break;
-    case 37://End
+    case 28://End
         log_msg.data = "Case39_end";
         if(log_flag<4){
           pub_logger.publish(log_msg);
