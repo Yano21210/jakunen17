@@ -240,3 +240,13 @@ add_executable(kadai2 src/kadai2.cpp)
 target_link_libraries(kadai2
   ${catkin_LIBRARIES}
 )
+
+add_executable(seme src/seme.cpp)
+target_link_libraries(seme
+  ${catkin_LIBRARIES}
+)
+
+add_executable(kadai3 src/kadai3.cpp)
+target_link_libraries(kadai3
+  ${catkin_LIBRARIES}
+)
