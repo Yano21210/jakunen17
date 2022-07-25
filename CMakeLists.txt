@@ -221,23 +221,44 @@ target_link_libraries(0-2_angle_control_testing_node
   ${catkin_LIBRARIES}
 )
 
-add_executable(kyori_de_tomaru_node src/kyori_de_tomaru.cpp)
-target_link_libraries(kyori_de_tomaru_node
+add_executable(kyori_de_tomaru_log src/kyori_de_tomaru_log.cpp)
+target_link_libraries(kyori_de_tomaru_log
   ${catkin_LIBRARIES}
 )
+
+add_executable(kyori_de_tomaru src/kyori_de_tomaru.cpp)
+target_link_libraries(kyori_de_tomaru
+  ${catkin_LIBRARIES}
+)
+
 
 add_executable(stop src/stop.cpp)
 target_link_libraries(stop
   ${catkin_LIBRARIES}
 )
 
-add_executable(kensa src/kensa.cpp)
-target_link_libraries(kensa
+add_executable(kensa3-1 src/kensa3-1.cpp)
+target_link_libraries(kensa3-1
+  ${catkin_LIBRARIES}
+)
+
+add_executable(kensa3-2 src/kensa3-2.cpp)
+target_link_libraries(kensa3-2
+  ${catkin_LIBRARIES}
+)
+
+add_executable(anzenkensa src/anzenkensa.cpp)
+target_link_libraries(anzenkensa
   ${catkin_LIBRARIES}
 )
 
 add_executable(kadai2 src/kadai2.cpp)
 target_link_libraries(kadai2
+  ${catkin_LIBRARIES}
+)
+
+add_executable(kadai2_work src/kadai2_work.cpp)
+target_link_libraries(kadai2_work
   ${catkin_LIBRARIES}
 )
 
@@ -248,5 +269,10 @@ target_link_libraries(seme
 
 add_executable(kadai3 src/kadai3.cpp)
 target_link_libraries(kadai3
+  ${catkin_LIBRARIES}
+)
+
+add_executable(kadai1 src/kadai1.cpp)
+target_link_libraries(kadai1
   ${catkin_LIBRARIES}
 )

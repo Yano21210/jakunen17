@@ -69,26 +69,67 @@ int main(int argc, char **argv){
         ang_dir.data=0;
         pub_tgt_ang.publish(ang_dir);
         fin.data=0;
-        // pub_hand_task.publish(fin);
-        //if(robot_mode==1)stage++;
-        stage++;
+        pub_hand_task.publish(fin);
+        if(robot_mode==1)stage++;
         break;
       case 1:
         cou++;
-        vel.linear.x = 0.0;
+        vel.linear.x = 0.02*cou;
         vel.linear.y = 0.0;
         vel.linear.z = 0.0;
         vel.angular.x = 0.0;
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
-        ang_dir.data=2;
-        pub_tgt_ang.publish(ang_dir);
-        if(cou>=30){
+        pub_twist.publish(vel);
+        if(cou>=10){
           cou=0;
           stage++;
         }
         break;
-       case 2:
+      case 2:
+        cou++;
+        vel.linear.x = 0.2;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        pub_twist.publish(vel);
+        if(cou>=20){
+          cou=0;
+          stage++;
+        }
+        break;
+      case 3:
+        cou++;
+        vel.linear.x = 0.2-0.02*cou;
+        vel.linear.y = 0.0;
+        vel.linear.z = 0.0;
+        vel.angular.x = 0.0;
+        vel.angular.y = 0.0;
+        vel.angular.z = 0.0;
+        pub_twist.publish(vel);
+        if(cou>=10){
+          cou=0;
+          stage++;
+        }
+        break;
+      case 4:
+         cou++;
+         vel.linear.x = 0.0;
+         vel.linear.y = 0.0;
+         vel.linear.z = 0.0;
+         vel.angular.x = 0.0;
+         vel.angular.y = 0.0;
+         vel.angular.z = 0.0;
+         ang_dir.data=2;
+         pub_tgt_ang.publish(ang_dir);
+         if(cou>=30){
+           cou=0;
+           stage++;
+         }
+        break;
+       case 5:
          cou++;
          vel.linear.x = 0.0;
          vel.linear.y = 0.0;
@@ -101,7 +142,7 @@ int main(int argc, char **argv){
            stage++;
         }
         break;
-       case 3:
+      case 6:
          cou++;
          vel.linear.x = 0.0;
          vel.linear.y = 0.0;
@@ -116,6 +157,7 @@ int main(int argc, char **argv){
            stage=99;
          }
         break;
+       
       case 99:
         vel.linear.x = 0.0;
         vel.linear.y = 0.0;
@@ -124,12 +166,11 @@ int main(int argc, char **argv){
         vel.angular.y = 0.0;
         vel.angular.z = 0.0;
         //pub_twist.publish(vel);
-        //if(robot_mode==0)stage=0;
+        if(robot_mode==0)stage=0;
         break;
     }
     pub_twist.publish(vel);
-    //if(robot_mode==0)stage=0;
-    //if(robot_mode==2)stage=99;
+    if(robot_mode==4)stage=99;
     printf("state=%d\n",stage);
     printf("F_kyori:%f\n",f_kyori);
     printf("B_kyori:%f\n",b_kyori);
